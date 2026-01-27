@@ -11,12 +11,13 @@ from config import Settings
 from database.engine import init_db, AsyncSessionLocal
 from handlers import (
     start_router,
-    drink_router,
-    stats_router,
-    settings_router,
-    reminders_router,
+    # drink_router,
+    # stats_router,
+    # settings_router,
+    # reminders_router,
 )
 from services.scheduler import setup_scheduler
+from utils.i18n import load_locales
 
 # Настройка логирования
 logging.basicConfig(
@@ -28,6 +29,7 @@ logger = logging.getLogger(__name__)
 async def main():
     # Загрузка конфигурации
     settings = Settings()
+    load_locales()
 
     # Инициализация БД
     await init_db()
@@ -39,10 +41,10 @@ async def main():
 
     # Подключение маршрутов (роутеров)
     dp.include_router(start_router)
-    dp.include_router(drink_router)
-    dp.include_router(stats_router)
-    dp.include_router(settings_router)
-    dp.include_router(reminders_router)
+    # dp.include_router(drink_router)
+    # dp.include_router(stats_router)
+    # dp.include_router(settings_router)
+    # dp.include_router(reminders_router)
 
     # Настройка планировщика напоминаний
     await setup_scheduler(bot)

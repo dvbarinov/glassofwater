@@ -8,6 +8,7 @@ from aiogram.types import ReplyKeyboardRemove
 from database.queries import get_user, create_or_update_user
 from keyboards.inline import get_gender_keyboard, get_activity_keyboard
 from utils.calculator import calculate_daily_water_goal
+from utils.i18n import get_text
 
 router = Router()
 
@@ -22,6 +23,10 @@ class ProfileSetup(StatesGroup):
 async def cmd_start(message: Message, state: FSMContext):
     user_id = message.from_user.id
     user = await get_user(user_id)
+    user_lang = message.from_user.language_code or "en"
+    # Ограничиваем поддерживаемые языки
+    if user_lang not in ["ru", "en"]:
+        user_lang = "ru"
 
     if user and user["daily_goal_ml"]:
         # Пользователь уже настроил профиль
@@ -36,13 +41,11 @@ async def cmd_start(message: Message, state: FSMContext):
         await state.clear()
     else:
         # Начинаем настройку профиля
+        await message.answer(get_text("start.greeting", user_lang))
+        await message.answer(get_text("start.greeting_add", user_lang))
         await message.answer(
-            "👋 Здравствуйте!\n\n"
-            "Я помогу Вам отслеживать потребление воды.\n\n"
-            "Для расчёта Вашей индивидуальной нормы мне нужно знать:\n"
-            "1. Пол\n2. Вес (в кг)\n3. Уровень активности\n\n"
-            "Вы готовы начать? Выберите свой пол:",
-            reply_markup=get_gender_keyboard()
+            get_text("start.ask_gender", user_lang),
+            reply_markup=get_gender_keyboard(user_lang)
         )
         await state.set_state(ProfileSetup.gender)
 

@@ -11,6 +11,7 @@ users = Table(
     Column("activity_level", Integer),  # 0, 1, 2
     Column("daily_goal_ml", Integer, default=2000),
     Column("timezone_offset", Integer, default=0),  # в минутах от UTC
+    Column("language", String(2), default="ru"), # ISO 639-1
     Column("unit_preference", String(10), default="ml"),  # "ml" or "cups"
     Column("notifications_enabled", Boolean, default=True),
 )
