@@ -1,0 +1,58 @@
+# main.py
+import asyncio
+import logging
+import os
+from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
+from aiogram.fsm.storage.memory import MemoryStorage
+
+from config import Settings
+from database.engine import init_db, AsyncSessionLocal
+from handlers import (
+    start_router,
+    drink_router,
+    stats_router,
+    settings_router,
+    reminders_router,
+)
+from services.scheduler import setup_scheduler
+
+# Настройка логирования
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+async def main():
+    # Загрузка конфигурации
+    settings = Settings()
+
+    # Инициализация БД
+    await init_db()
+    logger.info("✅ База данных инициализирована")
+
+    # Инициализация бота и диспетчера
+    bot = Bot(token=settings.bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    dp = Dispatcher(storage=MemoryStorage())
+
+    # Подключение маршрутов (роутеров)
+    dp.include_router(start_router)
+    dp.include_router(drink_router)
+    dp.include_router(stats_router)
+    dp.include_router(settings_router)
+    dp.include_router(reminders_router)
+
+    # Настройка планировщика напоминаний
+    await setup_scheduler(bot)
+
+    # Запуск polling
+    logger.info("🚀 Запуск бота...")
+    await dp.start_polling(bot, session_factory=AsyncSessionLocal)
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("🛑 Бот остановлен.")
