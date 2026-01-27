@@ -7,7 +7,8 @@ async def get_user(user_id: int):
     async with AsyncSessionLocal() as session:
         query = select(users).where(users.c.user_id == user_id)
         result = await session.execute(query)
-        return result.fetchone()._asdict() if result.fetchone() else None
+        row = result.mappings().fetchone()
+        return dict(row) if row else None
 
 async def create_or_update_user(user_id: int, gender: int, weight_kg: int, activity_level: int, daily_goal_ml: int):
     async with AsyncSessionLocal() as session:
@@ -31,5 +32,17 @@ async def create_or_update_user(user_id: int, gender: int, weight_kg: int, activ
                 activity_level=activity_level,
                 daily_goal_ml=daily_goal_ml
             )
+        await session.execute(stmt)
+        await session.commit()
+
+async def set_user_language(user_id: int, lang: str):
+    async with AsyncSessionLocal() as session:
+        # Убедимся, что пользователь существует
+        existing = await get_user(user_id)
+        if not existing:
+            # Создаём "заглушку", если пользователь не прошёл настройку
+            stmt = insert(users).values(user_id=user_id, language=lang)
+        else:
+            stmt = update(users).where(users.c.user_id == user_id).values(language=lang)
         await session.execute(stmt)
         await session.commit()

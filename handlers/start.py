@@ -1,4 +1,3 @@
-# handlers/start.py
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -6,9 +5,9 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import ReplyKeyboardRemove
 
 from database.queries import get_user, create_or_update_user
-from keyboards.inline import get_gender_keyboard, get_activity_keyboard
+from keyboards.inline import get_gender_keyboard, get_activity_keyboard, get_main_menu_keyboard
 from utils.calculator import calculate_daily_water_goal
-from utils.i18n import get_text
+from utils.i18n import get_text, get_user_language
 
 router = Router()
 
@@ -22,11 +21,11 @@ class ProfileSetup(StatesGroup):
 @router.message(F.text == "/start")
 async def cmd_start(message: Message, state: FSMContext):
     user_id = message.from_user.id
+    user_lang = await get_user_language(
+        user_id,
+        telegram_lang=message.from_user.language_code
+    )
     user = await get_user(user_id)
-    user_lang = message.from_user.language_code or "en"
-    # Ограничиваем поддерживаемые языки
-    if user_lang not in ["ru", "en"]:
-        user_lang = "ru"
 
     if user and user["daily_goal_ml"]:
         # Пользователь уже настроил профиль
@@ -52,15 +51,25 @@ async def cmd_start(message: Message, state: FSMContext):
 
 @router.callback_query(ProfileSetup.gender, F.data.in_({"male", "female"}))
 async def process_gender(callback: CallbackQuery, state: FSMContext):
+    user_lang = await get_user_language(
+        user_id = callback.from_user.id,
+        telegram_lang = callback.from_user.language_code
+    )
     gender = 0 if callback.data == "male" else 1
     await state.update_data(gender=gender)
-    await callback.message.edit_text("Отлично! Теперь укажите свой вес (в килограммах, целое число, например: 70):")
+    await callback.message.edit_text(get_text("start.ask_weight", user_lang))
     await state.set_state(ProfileSetup.weight)
     await callback.answer()
 
 
 @router.message(ProfileSetup.weight, F.text.regexp(r"^\d{2,3}$"))
 async def process_weight(message: Message, state: FSMContext):
+    user_id = message.from_user.id
+    user_lang = await get_user_language(
+        user_id,
+        telegram_lang=message.from_user.language_code
+    )
+
     weight = int(message.text)
     if not (30 <= weight <= 200):
         await message.answer("Пожалуйста, введите реалистичный вес (от 30 до 200 кг):")
@@ -68,7 +77,7 @@ async def process_weight(message: Message, state: FSMContext):
     await state.update_data(weight=weight)
     await message.answer(
         "Теперь выберите уровень физической активности:",
-        reply_markup=get_activity_keyboard()
+        reply_markup=get_activity_keyboard(user_lang)
     )
     await state.set_state(ProfileSetup.activity)
 
@@ -80,6 +89,10 @@ async def invalid_weight(message: Message):
 
 @router.callback_query(ProfileSetup.activity, F.data.in_({"low", "medium", "high"}))
 async def process_activity(callback: CallbackQuery, state: FSMContext):
+    user_lang = await get_user_language(
+        callback.from_user.id,
+        telegram_lang=callback.from_user.language_code
+    )
     activity_map = {"low": 0, "medium": 1, "high": 2}
     activity = activity_map[callback.data]
 
@@ -107,7 +120,7 @@ async def process_activity(callback: CallbackQuery, state: FSMContext):
         "• Отправлять объём воды (например: <code>300</code>)\n"
         "• Или использовать команду /drink 250\n"
         "• Посмотреть статистику: /stats",
-        reply_markup=None
+        reply_markup=get_main_menu_keyboard(user_lang)
     )
     await state.clear()
     await callback.answer()

@@ -24,3 +24,14 @@ def get_activity_keyboard(user_lang: str) -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="Средняя (лёгкие тренировки 1–3 раза/неделю)", callback_data="medium")],
         [InlineKeyboardButton(text="Высокая (интенсивные нагрузки 4+ раз/неделю)", callback_data="high")]
     ])
+
+def get_main_menu_keyboard(lang: str = "ru") -> InlineKeyboardMarkup:
+    """Основное меню с полезными кнопками"""
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text=get_text("menu.change_language", lang),
+                callback_data="open_lang_menu"
+            )
+        ]
+    ])

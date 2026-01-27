@@ -11,6 +11,7 @@ from config import Settings
 from database.engine import init_db, AsyncSessionLocal
 from handlers import (
     start_router,
+    lang_router,
     # drink_router,
     # stats_router,
     # settings_router,
@@ -41,6 +42,7 @@ async def main():
 
     # Подключение маршрутов (роутеров)
     dp.include_router(start_router)
+    dp.include_router(lang_router)
     # dp.include_router(drink_router)
     # dp.include_router(stats_router)
     # dp.include_router(settings_router)
