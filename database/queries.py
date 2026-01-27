@@ -1,6 +1,6 @@
-# database/queries.py
+from datetime import datetime, timezone
 from sqlalchemy import select, insert, update
-from .models import users
+from .models import users, intakes
 from .engine import AsyncSessionLocal
 
 async def get_user(user_id: int):
@@ -44,5 +44,16 @@ async def set_user_language(user_id: int, lang: str):
             stmt = insert(users).values(user_id=user_id, language=lang)
         else:
             stmt = update(users).where(users.c.user_id == user_id).values(language=lang)
+        await session.execute(stmt)
+        await session.commit()
+
+async def add_intake(user_id: int, amount_ml: int):
+    """Добавляет запись о выпитой воде"""
+    async with AsyncSessionLocal() as session:
+        stmt = insert(intakes).values(
+            user_id=user_id,
+            amount_ml=amount_ml,
+            timestamp=datetime.now(timezone.utc)
+        )
         await session.execute(stmt)
         await session.commit()

@@ -35,3 +35,23 @@ def get_main_menu_keyboard(lang: str = "ru") -> InlineKeyboardMarkup:
             )
         ]
     ])
+
+def get_drink_quick_buttons(lang: str = "en") -> InlineKeyboardMarkup:
+    amounts = [100, 200, 300, 500]
+    buttons = [
+        [
+            InlineKeyboardButton(
+                text=f"+{amt} мл",
+                callback_data=f"drink_{amt}"
+            )
+            for amt in amounts[:2]
+        ],
+        [
+            InlineKeyboardButton(
+                text=f"+{amt} мл",
+                callback_data=f"drink_{amt}"
+            )
+            for amt in amounts[2:]
+        ]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
