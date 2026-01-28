@@ -1,5 +1,6 @@
 {
   "weekday": "Mon,Tue,Wed,Thu,Fri,Sat,Sun",
+  "ml": "ml",
   "start.greeting": "👋 Hello!\n\nI'll help you track your water intake.",
   "start.greeting_add": "To calculate your personal daily water goal, I need to know:\n1. Your gender\n2. Your weight (in kg)\n3. Your activity level\n\nReady to get started?",
   "start.ask_gender": "Please select your gender:",
@@ -15,6 +16,8 @@
   "drink.added_with_progress": "✅ Added {amount} ml!\nToday’s total: {current} ml / {goal} ml ({percent}%)",
   "analyze.no_profile": "⚠️ Please set up your profile first using /start.",
   "analyze.report": "<b>📊 Water Intake Report</b>\n\nToday: <b>{current} ml / {goal} ml</b> ({percent}%)\n[{bar}]\n\n<b>Last 7 days:</b>\n{week_summary}",
+  "analyze.chart": "Water Intake Report - Last 7 days",
+  "analyze.goal": "Daily Goal",
   "analyze.today": "Today",
   "analyze.yesterday": "Yesterday"
 }

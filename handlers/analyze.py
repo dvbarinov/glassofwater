@@ -1,6 +1,10 @@
+import os
+
 from aiogram import Router, F
-from aiogram.types import Message
+from aiogram.types import Message, FSInputFile
 from datetime import timedelta, datetime, timezone
+
+from utils.chart import generate_weekly_chart
 from utils.i18n import get_text, get_user_language, get_loc_list
 from database.queries import get_user, get_today_intakes, get_weekly_totals
 
@@ -47,12 +51,25 @@ async def cmd_stats(message: Message):
         week_summary=week_str
     )
 
-    await message.answer(stats_text)
+    # await message.answer(stats_text)
+
+    # Генерируем график
+    chart_path = generate_weekly_chart(weekly_data, goal, user_lang)
+    photo = FSInputFile(chart_path)
+    await message.answer_photo(photo, caption=stats_text)
+
+    # Удаляем временный файл
+    try:
+        os.remove(chart_path)
+    except OSError:
+        pass  # Игнорируем ошибки удаления
+
 
 def _format_weekly_stats(weekly_data: dict, goal: int, lang: str) -> str:
     """Форматирует статистику за последние 7 дней"""
     days = []
     now = datetime.now(timezone.utc).date()
+    units = get_text("ml", lang)
 
     # Список дней: сегодня, вчера, позавчера...
     for i in range(7):
@@ -69,8 +86,8 @@ def _format_weekly_stats(weekly_data: dict, goal: int, lang: str) -> str:
         if amount > 0:
             pct = min(100, round(amount / goal * 100))
             emoji = "✅" if pct >= 100 else "💧"
-            days.append(f"{emoji} {label}: {amount} мл ({pct}%)")
+            days.append(f"{emoji} {label}: {amount} {units} ({pct}%)")
         else:
-            days.append(f"❌ {label}: 0 мл")
+            days.append(f"❌ {label}: 0 {units}")
 
     return "\n".join(reversed(days))  # от старых к новым
