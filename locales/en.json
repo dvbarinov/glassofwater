@@ -1,0 +1,19 @@
+{
+  "start.greeting": "👋 Hello!\n\nI'll help you track your water intake.",
+  "start.greeting_add": "To calculate your personal daily water goal, I need to know:\n1. Your gender\n2. Your weight (in kg)\n3. Your activity level\n\nReady to get started?",
+  "start.ask_gender": "Please select your gender:",
+  "gender.male": "Male 👨",
+  "gender.female": "Female 👩",
+  "start.ask_weight": "Great! Now please enter your weight in kilograms (whole number, e.g., 70):",
+  "menu.change_language": "🌐 Change language",
+  "lang.choose": "Select your interface language:",
+  "lang.changed": "Language changed to English.",
+  "drink.help": "💧 Send the amount of water in milliliters.\nExamples:\n• /drink 250\n• Just type: 300",
+  "drink.invalid_amount": "Please enter an amount between 50 and 3000 ml.",
+  "drink.added": "✅ Added {amount} ml of water!",
+  "drink.added_with_progress": "✅ Added {amount} ml!\nToday’s total: {current} ml / {goal} ml ({percent}%)",
+  "analyze.no_profile": "⚠️ Please set up your profile first using /start.",
+  "analyze.report": "<b>📊 Water Intake Report</b>\n\nToday: <b>{current} ml / {goal} ml</b> ({percent}%)\n[{bar}]\n\n<b>Last 7 days:</b>\n{week_summary}",
+  "analyze.today": "Today",
+  "analyze.yesterday": "Yesterday"
+}
