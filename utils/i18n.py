@@ -38,3 +38,7 @@ def get_text(key: str, lang: str = "ru", **kwargs) -> str:
     locale = _locales.get(lang, _locales["ru"])
     text = locale.get(key, f"{{{key}}}")  # fallback + debug
     return text.format(**kwargs)
+
+def get_loc_list(key: str, lang: str = "ru") -> list[str]:
+    locale = _locales.get(lang, _locales["ru"])
+    return locale.get(key).split(",")

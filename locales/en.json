@@ -1,4 +1,5 @@
 {
+  "weekday": "Mon,Tue,Wed,Thu,Fri,Sat,Sun",
   "start.greeting": "👋 Hello!\n\nI'll help you track your water intake.",
   "start.greeting_add": "To calculate your personal daily water goal, I need to know:\n1. Your gender\n2. Your weight (in kg)\n3. Your activity level\n\nReady to get started?",
   "start.ask_gender": "Please select your gender:",

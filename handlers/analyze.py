@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.types import Message
-from datetime import timedelta
-from utils.i18n import get_text, get_user_language
+from datetime import timedelta, datetime, timezone
+from utils.i18n import get_text, get_user_language, get_loc_list
 from database.queries import get_user, get_today_intakes, get_weekly_totals
 
 router = Router()
@@ -49,10 +49,8 @@ async def cmd_stats(message: Message):
 
     await message.answer(stats_text)
 
-# В том же файле analyze.py (внизу)
 def _format_weekly_stats(weekly_data: dict, goal: int, lang: str) -> str:
     """Форматирует статистику за последние 7 дней"""
-    from datetime import datetime, timezone
     days = []
     now = datetime.now(timezone.utc).date()
 
@@ -61,23 +59,18 @@ def _format_weekly_stats(weekly_data: dict, goal: int, lang: str) -> str:
         day = now - timedelta(days=i)
         key = day.isoformat()
         amount = weekly_data.get(key, 0)
+        weekday_index = day.weekday()
+        if i == 0:
+            label = get_text("analyze.today", lang)
+        elif i == 1:
+            label = get_text("analyze.yesterday", lang)
+        else:
+            label = f"{get_loc_list('weekday', lang)[weekday_index]}"  # Mon, Tue...
         if amount > 0:
             pct = min(100, round(amount / goal * 100))
             emoji = "✅" if pct >= 100 else "💧"
-            if i == 0:
-                label = get_text("analyze.today", lang)
-            elif i == 1:
-                label = get_text("analyze.yesterday", lang)
-            else:
-                label = day.strftime("%a")  # Mon, Tue...
             days.append(f"{emoji} {label}: {amount} мл ({pct}%)")
         else:
-            if i == 0:
-                label = get_text("analyze.today", lang)
-            elif i == 1:
-                label = get_text("analyze.yesterday", lang)
-            else:
-                label = day.strftime("%a")
             days.append(f"❌ {label}: 0 мл")
 
     return "\n".join(reversed(days))  # от старых к новым
