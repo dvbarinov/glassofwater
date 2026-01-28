@@ -1,5 +1,5 @@
-from datetime import datetime, timezone
-from sqlalchemy import select, insert, update
+from datetime import datetime, timezone, timedelta
+from sqlalchemy import select, insert, update, func
 from .models import users, intakes
 from .engine import AsyncSessionLocal
 
@@ -57,3 +57,35 @@ async def add_intake(user_id: int, amount_ml: int):
         )
         await session.execute(stmt)
         await session.commit()
+
+async def get_today_intakes(user_id: int):
+    """Возвращает все записи за сегодня"""
+    today = datetime.now(timezone.utc).date()
+    async with AsyncSessionLocal() as session:
+        query = (
+            select(intakes)
+            .where(intakes.c.user_id == user_id)
+            .where(func.date(intakes.c.timestamp) == today)
+            .order_by(intakes.c.timestamp)
+        )
+        result = await session.execute(query)
+        return result.fetchall()
+
+
+async def get_weekly_totals(user_id: int):
+    """Возвращает словарь: {дата_iso: сумма_мл} за последние 7 дней"""
+    now = datetime.now(timezone.utc)
+    week_ago = now - timedelta(days=7)
+    async with AsyncSessionLocal() as session:
+        query = (
+            select(
+                func.date(intakes.c.timestamp).label("date"),
+                func.sum(intakes.c.amount_ml).label("total")
+            )
+            .where(intakes.c.user_id == user_id)
+            .where(intakes.c.timestamp >= week_ago)
+            .group_by(func.date(intakes.c.timestamp))
+        )
+        result = await session.execute(query)
+        rows = result.fetchall()
+        return {str(row.date): row.total for row in rows}

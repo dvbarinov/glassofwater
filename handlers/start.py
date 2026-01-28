@@ -34,8 +34,9 @@ async def cmd_start(message: Message, state: FSMContext):
             "Вы уже установили свою дневную норму воды.\n\n"
             "Используйте:\n"
             "• /drink 200 — добавить воду\n"
-            "• /stats — посмотреть статистику\n"
-            "• /goal 2500 — изменить цель"
+            "• /analyze — посмотреть статистику\n"
+            "• /goal 2500 — изменить цель\n"
+            "• /lang — изменить язык"
         )
         await state.clear()
     else:

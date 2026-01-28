@@ -13,7 +13,7 @@ from handlers import (
     start_router,
     lang_router,
     drink_router,
-    # stats_router,
+    analize_router,
     # settings_router,
     # reminders_router,
 )
@@ -44,7 +44,7 @@ async def main():
     dp.include_router(start_router)
     dp.include_router(lang_router)
     dp.include_router(drink_router)
-    # dp.include_router(stats_router)
+    dp.include_router(analize_router)
     # dp.include_router(settings_router)
     # dp.include_router(reminders_router)
 
