@@ -89,3 +89,20 @@ async def get_weekly_totals(user_id: int):
         result = await session.execute(query)
         rows = result.fetchall()
         return {str(row.date): row.total for row in rows}
+
+async def toggle_notifications(user_id: int, enabled: bool):
+    async with AsyncSessionLocal() as session:
+        stmt = (
+            update(users)
+            .where(users.c.user_id == user_id)
+            .values(notifications_enabled=enabled)
+        )
+        await session.execute(stmt)
+        await session.commit()
+
+async def get_all_active_users():
+    """Возвращает всех пользователей с включёнными напоминаниями"""
+    async with AsyncSessionLocal() as session:
+        query = select(users).where(users.c.notifications_enabled == True)
+        result = await session.execute(query)
+        return result.mappings().fetchall()

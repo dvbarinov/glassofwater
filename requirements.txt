@@ -5,4 +5,5 @@ sqlalchemy>=2.0
 apscheduler
 python-dotenv
 pydantic-settings
-matplotlib  # опционально, для графиков
+matplotlib  # для графиков
+pytz # для напоминалки

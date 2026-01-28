@@ -19,5 +19,12 @@
   "analyze.chart": "Water Intake Report - Last 7 days",
   "analyze.goal": "Daily Goal",
   "analyze.today": "Today",
-  "analyze.yesterday": "Yesterday"
+  "analyze.yesterday": "Yesterday",
+  "reminders.no_profile": "⚠️ Please set up your profile first with /start.",
+  "reminders.status": "💧 Water reminders: {status}\n\nYou'll receive notifications every 2 hours from 9:00 to 21:00.",
+  "reminders.enabled": "✅ Enabled",
+  "reminders.disabled": "❌ Disabled",
+  "reminders.turn_off": "🔕 Turn off reminders",
+  "reminders.turn_on": "🔔 Turn on reminders",
+  "reminders.notification": "💧💧💧💧💧\nIt's time to drink some water!"
 }
