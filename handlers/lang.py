@@ -5,25 +5,35 @@ from utils.i18n import get_text, SUPPORTED_LANGUAGES, get_user_language
 
 router = Router()
 
-@router.message(F.text == "/lang")
-async def cmd_lang(message: Message):
-    user = await get_user(message.from_user.id)
-    current_lang = user["language"] if user else message.from_user.language_code or "en"
-    if current_lang not in SUPPORTED_LANGUAGES:
-        current_lang = "en"
 
+async def get_lang_buttons(current_lang: str) -> list[list[InlineKeyboardButton]]:
     buttons = []
     for lang_code in SUPPORTED_LANGUAGES:
-        flag = {"en": "🇬🇧", "ru": "🇷🇺"}.get(lang_code, "🌐")
-        text = f"{flag} {'English' if lang_code == 'en' else 'Русский'}"
+        flag = {"en": "🇬🇧", "ru": "🇷🇺", "de": "🇩🇪", "zh": "🇨🇳", "be": "🇧🇾"}.get(lang_code, "🌐")
+        text = f"{flag} {SUPPORTED_LANGUAGES[lang_code]}"
         if lang_code == current_lang:
             text += " ✅"
         buttons.append([InlineKeyboardButton(text=text, callback_data=f"set_lang_{lang_code}")])
+    return buttons
+
+
+@router.message(F.text == "/lang")
+async def cmd_lang(message: Message):
+    user = await get_user(message.from_user.id)
+    user_lang = await get_user_language(
+        user_id=message.from_user.id,
+        telegram_lang=message.from_user.language_code
+    )
+    if user_lang not in SUPPORTED_LANGUAGES:
+        current_lang = "en"
+
+    buttons = await get_lang_buttons(user_lang)
 
     await message.answer(
         "Выберите язык интерфейса:",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons)
     )
+
 
 @router.callback_query(F.data.startswith("set_lang_"))
 async def set_language(callback: CallbackQuery):
@@ -39,21 +49,15 @@ async def set_language(callback: CallbackQuery):
     await callback.message.edit_text(confirmation)
     await callback.answer()
 
+
 @router.callback_query(F.data == "open_lang_menu")
 async def open_lang_menu(callback: CallbackQuery):
-    user = await get_user(callback.from_user.id)
     user_lang = await get_user_language(
-        user_id = callback.from_user.id,
-        telegram_lang = callback.from_user.language_code
+        user_id=callback.from_user.id,
+        telegram_lang=callback.from_user.language_code
     )
 
-    buttons = []
-    for lang_code in SUPPORTED_LANGUAGES:
-        flag = {"en": "🇬🇧", "ru": "🇷🇺"}.get(lang_code, "🌐")
-        text = f"{flag} {'English' if lang_code == 'en' else 'Русский'}"
-        if user and user["language"] == lang_code:
-            text += " ✅"
-        buttons.append([InlineKeyboardButton(text=text, callback_data=f"set_lang_{lang_code}")])
+    buttons = await get_lang_buttons(user_lang)
 
     await callback.message.edit_text(
         get_text("lang.choose", user_lang),

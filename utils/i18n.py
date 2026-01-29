@@ -6,7 +6,13 @@ from typing import Dict, Optional
 from database.queries import get_user
 
 # Поддерживаемые языки (должны совпадать с именами файлов в locales/)
-SUPPORTED_LANGUAGES = ["ru", "en"]
+SUPPORTED_LANGUAGES = {
+    "ru": "Русский",
+    "en": "English",
+    "de": "Deutsch",
+    "zh": "中国",
+    "be": "Беларуская"
+}
 _locales: Dict[str, Dict[str, str]] = {}
 
 def load_locales():
