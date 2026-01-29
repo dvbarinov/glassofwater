@@ -26,5 +26,8 @@
   "reminders.disabled": "❌ Отключены",
   "reminders.turn_off": "🔕 Отключить напоминания",
   "reminders.turn_on": "🔔 Включить напоминания",
-  "reminders.notification": "💧💧💧💧💧\nПора выпить воды!"
+  "reminders.notification": "💧💧💧💧💧\nПора выпить воды!",
+  "goal.help": "💧 Установите свою суточную норму воды в миллилитрах.\nПример: /goal 2500",
+  "goal.invalid": "Пожалуйста, укажите цель от 500 до 5000 мл.",
+  "goal.set": "✅ Ваша суточная норма теперь {goal} мл!"
 }

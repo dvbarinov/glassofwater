@@ -106,3 +106,16 @@ async def get_all_active_users():
         query = select(users).where(users.c.notifications_enabled == True)
         result = await session.execute(query)
         return result.mappings().fetchall()
+
+async def set_user_goal(user_id: int, goal_ml: int):
+    """Устанавливает суточную цель пользователя"""
+    async with AsyncSessionLocal() as session:
+        # Убедимся, что пользователь существует
+        existing = await get_user(user_id)
+        if not existing:
+            # Создаём минимальную запись
+            stmt = insert(users).values(user_id=user_id, daily_goal_ml=goal_ml)
+        else:
+            stmt = update(users).where(users.c.user_id == user_id).values(daily_goal_ml=goal_ml)
+        await session.execute(stmt)
+        await session.commit()

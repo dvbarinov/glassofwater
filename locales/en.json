@@ -26,5 +26,8 @@
   "reminders.disabled": "❌ Disabled",
   "reminders.turn_off": "🔕 Turn off reminders",
   "reminders.turn_on": "🔔 Turn on reminders",
-  "reminders.notification": "💧💧💧💧💧\nIt's time to drink some water!"
+  "reminders.notification": "💧💧💧💧💧\nIt's time to drink some water!",
+  "goal.help": "💧 Set your daily water goal in ml.\nExample: /goal 2500",
+  "goal.invalid": "Please enter a goal between 500 and 5000 ml.",
+  "goal.set": "✅ Your daily goal is now {goal} ml!"
 }

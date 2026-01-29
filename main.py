@@ -16,6 +16,7 @@ from handlers import (
     analize_router,
     # settings_router,
     reminder_router,
+    goal_router,
 )
 from services.scheduler import setup_scheduler
 from utils.i18n import load_locales
@@ -47,6 +48,7 @@ async def main():
     dp.include_router(analize_router)
     # dp.include_router(settings_router)
     dp.include_router(reminder_router)
+    dp.include_router(goal_router)
 
     # Настройка планировщика напоминаний
     await setup_scheduler(bot)
