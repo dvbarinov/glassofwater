@@ -2,7 +2,6 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import ReplyKeyboardRemove
 
 from database.queries import get_user, create_or_update_user
 from keyboards.inline import get_gender_keyboard, get_activity_keyboard, get_main_menu_keyboard
@@ -30,11 +29,14 @@ async def cmd_start(message: Message, state: FSMContext):
     if user and user["daily_goal_ml"]:
         # Пользователь уже настроил профиль
         await message.answer(
-            "💧 Добро пожаловать обратно в AquaTrack!\n"
+            "💧 Добро пожаловать обратно в Glass Of Water!\n"
             "Вы уже установили свою дневную норму воды.\n\n"
             "Используйте:\n"
-            "• /drink 200 — добавить воду\n"
+            "• /drink 200 — добавить 200 мл воды\n"
+            "или просто\n"
+            "• 200 — добавить 200 мл воды\n"
             "• /analyze — посмотреть статистику\n"
+            "• /reminder — изменить напоминание\n"
             "• /goal 2500 — изменить цель\n"
             "• /lang — изменить язык"
         )

@@ -47,6 +47,6 @@ async def setup_scheduler(bot):
     set_bot(bot)
     scheduler = AsyncIOScheduler()
     # Напоминание каждые 2 часа
-    scheduler.add_job(send_water_reminder, 'interval', hours=2, next_run_time=datetime.now() + timedelta(seconds=10))
+    scheduler.add_job(send_water_reminder, 'interval', minutes=100, next_run_time=datetime.now() + timedelta(seconds=10))
     scheduler.start()
     print("✅ Scheduler started")

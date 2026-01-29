@@ -21,7 +21,7 @@
   "analyze.today": "今天",
   "analyze.yesterday": "昨天",
   "reminders.no_profile": "⚠️ 请先通过 /start 设置你的个人资料。",
-  "reminders.status": "💧 饮水提醒：{status}\n\n你将在每天 9:00 至 21:00 之间每 2 小时收到提醒。",
+  "reminders.status": "💧 饮水提醒：\n{status}\n你将在每天 9:00 至 21:00 之间每 2 小时收到提醒。",
   "reminders.enabled": "✅ 已启用",
   "reminders.disabled": "❌ 已关闭",
   "reminders.turn_off": "🔕 关闭提醒",

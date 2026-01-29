@@ -21,7 +21,7 @@
   "analyze.today": "Today",
   "analyze.yesterday": "Yesterday",
   "reminders.no_profile": "⚠️ Please set up your profile first with /start.",
-  "reminders.status": "💧 Water reminders: {status}\n\nYou'll receive notifications every 2 hours from 9:00 to 21:00.",
+  "reminders.status": "💧 Water reminders: \n{status}\nYou'll receive notifications every 2 hours from 9:00 to 21:00.",
   "reminders.enabled": "✅ Enabled",
   "reminders.disabled": "❌ Disabled",
   "reminders.turn_off": "🔕 Turn off reminders",

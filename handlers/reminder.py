@@ -6,7 +6,7 @@ from utils.i18n import get_text, get_user_language
 router = Router()
 
 
-@router.message(F.text == "/reminders")
+@router.message(F.text == "/reminder")
 async def cmd_reminders(message: Message):
     user_id = message.from_user.id
     user = await get_user(user_id)

@@ -21,7 +21,7 @@
   "analyze.today": "Heute",
   "analyze.yesterday": "Gestern",
   "reminders.no_profile": "⚠️ Bitte richte zuerst dein Profil mit /start ein.",
-  "reminders.status": "💧 Wasser-Erinnerungen: {status}\n\nDu erhältst alle 2 Stunden von 9:00 bis 21:00 Uhr Benachrichtigungen.",
+  "reminders.status": "💧 Wasser-Erinnerungen: \n{status}\nDu erhältst alle 2 Stunden von 9:00 bis 21:00 Uhr Benachrichtigungen.",
   "reminders.enabled": "✅ Aktiviert",
   "reminders.disabled": "❌ Deaktiviert",
   "reminders.turn_off": "🔕 Erinnerungen ausschalten",
