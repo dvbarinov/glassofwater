@@ -25,13 +25,7 @@ async def get_user(user_id: int):
         row = result.mappings().fetchone()
         return dict(row) if row else None
 
-async def create_or_update_user(
-        user_id: int,
-        gender: int,
-        weight_kg: int,
-        activity_level: int,
-        daily_goal_ml: int
-):
+async def create_or_update_user(user_id: int, **kwargs):
     """
     Создаёт нового пользователя или обновляет существующего.
 
@@ -42,24 +36,10 @@ async def create_or_update_user(
     async with AsyncSessionLocal() as session:
         existing = await get_user(user_id)
         if existing:
-            stmt = (
-                update(users)
-                .where(users.c.user_id == user_id)
-                .values(
-                    gender=gender,
-                    weight_kg=weight_kg,
-                    activity_level=activity_level,
-                    daily_goal_ml=daily_goal_ml
-                )
-            )
+            stmt = update(users).where(users.c.user_id == user_id).values(**kwargs)
         else:
-            stmt = insert(users).values(
-                user_id=user_id,
-                gender=gender,
-                weight_kg=weight_kg,
-                activity_level=activity_level,
-                daily_goal_ml=daily_goal_ml
-            )
+            kwargs["user_id"] = user_id
+            stmt = insert(users).values(**kwargs)
         await session.execute(stmt)
         await session.commit()
 
@@ -142,14 +122,7 @@ async def get_weekly_totals(user_id: int):
 
 async def toggle_notifications(user_id: int, enabled: bool):
     """Переключает статус напоминаний для пользователя."""
-    async with AsyncSessionLocal() as session:
-        stmt = (
-            update(users)
-            .where(users.c.user_id == user_id)
-            .values(notifications_enabled=enabled)
-        )
-        await session.execute(stmt)
-        await session.commit()
+    await create_or_update_user(user_id, notifications_enabled=enabled)
 
 async def get_all_active_users():
     """Возвращает всех пользователей с включёнными напоминаниями"""
@@ -160,13 +133,4 @@ async def get_all_active_users():
 
 async def set_user_goal(user_id: int, goal_ml: int):
     """Устанавливает суточную цель пользователя"""
-    async with AsyncSessionLocal() as session:
-        # Убедимся, что пользователь существует
-        existing = await get_user(user_id)
-        if not existing:
-            # Создаём минимальную запись
-            stmt = insert(users).values(user_id=user_id, daily_goal_ml=goal_ml)
-        else:
-            stmt = update(users).where(users.c.user_id == user_id).values(daily_goal_ml=goal_ml)
-        await session.execute(stmt)
-        await session.commit()
+    await create_or_update_user(user_id, daily_goal_ml=goal_ml)
