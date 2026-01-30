@@ -1,7 +1,7 @@
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
-from database.queries import get_user, set_user_language
-from utils.i18n import get_text, SUPPORTED_LANGUAGES, get_user_language
+from database.queries import set_user_language
+from utils.i18n import get_text, SUPPORTED_LANGUAGES
 
 router = Router()
 
@@ -18,28 +18,23 @@ async def get_lang_buttons(current_lang: str) -> list[list[InlineKeyboardButton]
 
 
 @router.message(F.text == "/lang")
-async def cmd_lang(message: Message):
-    user = await get_user(message.from_user.id)
-    user_lang = await get_user_language(
-        user_id=message.from_user.id,
-        telegram_lang=message.from_user.language_code
-    )
-    if user_lang not in SUPPORTED_LANGUAGES:
-        current_lang = "en"
-
+async def cmd_lang(message: Message, user_lang: str):
     buttons = await get_lang_buttons(user_lang)
 
     await message.answer(
-        "Выберите язык интерфейса:",
+        get_text("lang.choose", user_lang),
         reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons)
     )
 
 
 @router.callback_query(F.data.startswith("set_lang_"))
-async def set_language(callback: CallbackQuery):
+async def set_language(callback: CallbackQuery, user_lang: str):
     lang = callback.data.split("_")[-1]
     if lang not in SUPPORTED_LANGUAGES:
-        await callback.answer("Язык не поддерживается.", show_alert=True)
+        await callback.answer(
+            get_text("lang.unsupported", user_lang),
+            show_alert=True
+        )
         return
 
     await set_user_language(callback.from_user.id, lang)
@@ -51,12 +46,7 @@ async def set_language(callback: CallbackQuery):
 
 
 @router.callback_query(F.data == "open_lang_menu")
-async def open_lang_menu(callback: CallbackQuery):
-    user_lang = await get_user_language(
-        user_id=callback.from_user.id,
-        telegram_lang=callback.from_user.language_code
-    )
-
+async def open_lang_menu(callback: CallbackQuery, user_lang: str):
     buttons = await get_lang_buttons(user_lang)
 
     await callback.message.edit_text(

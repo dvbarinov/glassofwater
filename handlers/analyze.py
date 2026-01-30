@@ -5,23 +5,18 @@ from aiogram.types import Message, FSInputFile
 from datetime import timedelta, datetime, timezone
 
 from utils.chart import generate_weekly_chart
-from utils.i18n import get_text, get_user_language, get_loc_list
-from database.queries import get_user, get_today_intakes, get_weekly_totals
+from utils.i18n import get_text, get_loc_list
+from database.queries import get_today_intakes, get_weekly_totals
 
 router = Router()
 
 
 @router.message(F.text == "/analyze")
-async def cmd_stats(message: Message):
+async def cmd_stats(message: Message, lang: str, user: dict | None):
     user_id = message.from_user.id
-    user = await get_user(user_id)
-    user_lang = await get_user_language(
-        user_id,
-        telegram_lang=message.from_user.language_code
-    )
 
     if not user or not user["daily_goal_ml"]:
-        no_profile_msg = get_text("analyze.no_profile", user_lang)
+        no_profile_msg = get_text("analyze.no_profile", lang)
         await message.answer(no_profile_msg)
         return
 
@@ -39,11 +34,11 @@ async def cmd_stats(message: Message):
 
     # Еженедельные данные
     weekly_data = await get_weekly_totals(user_id)
-    week_str = _format_weekly_stats(weekly_data, goal, user_lang)
+    week_str = _format_weekly_stats(weekly_data, goal, lang)
 
     stats_text = get_text(
         "analyze.report",
-        user_lang,
+        lang,
         current=today_total,
         goal=goal,
         percent=percent,
@@ -54,7 +49,7 @@ async def cmd_stats(message: Message):
     # await message.answer(stats_text)
 
     # Генерируем график
-    chart_path = generate_weekly_chart(weekly_data, goal, user_lang)
+    chart_path = generate_weekly_chart(weekly_data, goal, lang)
     photo = FSInputFile(chart_path)
     await message.answer_photo(photo, caption=stats_text)
 

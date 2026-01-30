@@ -1,6 +1,5 @@
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery
-from aiogram.fsm.context import FSMContext
 
 from database.queries import get_user, add_intake
 from keyboards.inline import get_drink_quick_buttons
@@ -10,42 +9,32 @@ router = Router()
 
 
 @router.message(F.text == "/drink")
-async def cmd_drink_help(message: Message):
+async def cmd_drink_help(message: Message, user_lang: str):
     """Показывает подсказку по команде /drink"""
-    user_lang = await get_user_language(
-        user_id=message.from_user.id,
-        telegram_lang=message.from_user.language_code
-    )
     help_text = get_text("drink.help", user_lang)
     await message.answer(help_text, reply_markup=get_drink_quick_buttons(user_lang))
 
 
 @router.message(F.text.regexp(r"^/drink\s+(\d+)$"))
-async def cmd_drink_with_amount(message: Message):
+async def cmd_drink_with_amount(message: Message, user_lang: str):
     """Обработка команды вида: /drink 250"""
     amount_str = message.text.split(maxsplit=1)[1]
-    await process_water_amount(message, amount_str)
+    await process_water_amount(message, user_lang, amount_str)
 
 
 @router.message(F.text.regexp(r"^\d+$"))
-async def handle_raw_number(message: Message):
+async def handle_raw_number(message: Message, user_lang: str):
     """Обработка простого числа: "300" → добавить 300 мл"""
-    await process_water_amount(message, message.text)
+    await process_water_amount(message, user_lang, message.text)
 
 
 @router.callback_query(F.data.startswith("drink_"))
-async def drink_callback(callback: CallbackQuery):
+async def drink_callback(callback: CallbackQuery, user_lang: str):
     """Обработка inline-кнопок: drink_200, drink_500 и т.д."""
     try:
         amount = int(callback.data.split("_")[1])
         user_id = callback.from_user.id
         await add_intake(user_id, amount)
-
-        # Получаем язык пользователя
-        user_lang = await get_user_language(
-            user_id=callback.from_user.id,
-            telegram_lang=callback.from_user.language_code
-        )
 
         success_msg = get_text("drink.added", user_lang, amount=amount)
         await callback.message.edit_text(success_msg)
@@ -54,20 +43,14 @@ async def drink_callback(callback: CallbackQuery):
         await callback.answer("❌ Некорректные данные", show_alert=True)
 
 
-async def process_water_amount(message: Message, amount_str: str):
+async def process_water_amount(message: Message, user_lang: str, amount_str: str):
     """Общая логика обработки объёма воды"""
     try:
         amount = int(amount_str)
     except ValueError:
         return  # Игнорируем нечисловые значения
 
-    user_lang = await get_user_language(
-        user_id=message.from_user.id,
-        telegram_lang=message.from_user.language_code
-    )
-
     if not (50 <= amount <= 3000):
-
         error_msg = get_text("drink.invalid_amount", user_lang)
         await message.answer(error_msg)
         return
@@ -80,7 +63,8 @@ async def process_water_amount(message: Message, amount_str: str):
     if user and user["daily_goal_ml"]:
         today_total = await get_today_total(message.from_user.id)  # потребуется реализация
         percent = min(100, round(today_total / user["daily_goal_ml"] * 100))
-        success_msg = get_text("drink.added_with_progress", user_lang, amount=amount, current=today_total, goal=user["daily_goal_ml"], percent=percent)
+        success_msg = get_text("drink.added_with_progress", user_lang, amount=amount, current=today_total,
+                               goal=user["daily_goal_ml"], percent=percent)
     else:
         success_msg = get_text("drink.added", user_lang, amount=amount)
 

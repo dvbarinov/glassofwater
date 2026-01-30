@@ -3,7 +3,7 @@ from datetime import datetime, time, timezone, timedelta
 import pytz
 
 from database.queries import get_all_active_users
-from utils.i18n import get_text, get_user_language
+from utils.i18n import get_text
 
 # Глобальный бот (будет установлен в main.py)
 _bot = None

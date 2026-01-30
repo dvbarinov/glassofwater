@@ -7,6 +7,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
+from middlewares.i18n import I18nMiddleware
 from config import Settings
 from database.engine import init_db, AsyncSessionLocal
 from handlers import (
@@ -28,6 +29,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 async def main():
     # Загрузка конфигурации
     settings = Settings()
@@ -40,6 +42,10 @@ async def main():
     # Инициализация бота и диспетчера
     bot = Bot(token=settings.bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     dp = Dispatcher(storage=MemoryStorage())
+
+    # Применяем мидлварь ко всем сообщениям и колбэкам
+    dp.message.middleware(I18nMiddleware())
+    dp.callback_query.middleware(I18nMiddleware())
 
     # Подключение маршрутов (роутеров)
     dp.include_router(start_router)
@@ -56,6 +62,7 @@ async def main():
     # Запуск polling
     logger.info("🚀 Запуск бота...")
     await dp.start_polling(bot, session_factory=AsyncSessionLocal)
+
 
 if __name__ == "__main__":
     try:
