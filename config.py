@@ -22,6 +22,7 @@ class Settings(BaseSettings):
 
     bot_token: str
     db_path: str = "data/aquatrack.db"
+    i18n_auto_generate: int = 0
 
     class Config:
         """Указывает Pydantic использовать файл .env для загрузки переменных."""
