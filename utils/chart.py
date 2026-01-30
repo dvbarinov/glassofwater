@@ -1,12 +1,19 @@
+"""
+Модуль генерации графиков статистики.
+
+Создаёт изображения с графиками потребления воды за неделю
+с использованием matplotlib. Поддерживает несколько языков.
+"""
+
 import os
+from datetime import datetime, timedelta, timezone
+from typing import Dict
 import matplotlib
+import matplotlib.pyplot as plt
 
 from utils.i18n import get_loc_list, get_text
 
 matplotlib.use('Agg')  # Используем backend без GUI
-import matplotlib.pyplot as plt
-from datetime import datetime, timedelta, timezone
-from typing import Dict
 
 
 def generate_weekly_chart(
@@ -15,8 +22,19 @@ def generate_weekly_chart(
         lang: str = "en"
 ) -> str:
     """
-    Генерирует график за последние 7 дней и сохраняет в файл.
-    Возвращает путь к файлу.
+    Генерирует столбчатую диаграмму потребления воды за последние 7 дней.
+
+    Args:
+        weekly_data (dict): Словарь вида {"YYYY-MM-DD": total_ml}.
+        goal_ml (int): Суточная цель потребления воды в мл.
+        lang (str): Код языка для подписей оси X.
+
+    Returns:
+        str: Путь к сохранённому PNG-файлу.
+
+    Примечание:
+        Использует backend Agg для работы без GUI.
+        Файл сохраняется в папку temp/.
     """
     # Настройка локали для подписей
     labels = get_loc_list("weekday", lang)
@@ -34,7 +52,13 @@ def generate_weekly_chart(
     bars = plt.bar(days, amounts, color='#4CAF50', edgecolor='black', linewidth=0.5)
 
     # Линия цели
-    plt.axhline(y=goal_ml, color='#FF5722', linestyle='--', linewidth=2, label=f'{goal}: {goal_ml} {units}')
+    plt.axhline(
+        y=goal_ml,
+        color='#FF5722',
+        linestyle='--',
+        linewidth=2,
+        label=f'{goal}: {goal_ml} {units}'
+    )
 
     # Подписи на столбцах
     for bar, amount in zip(bars, amounts):
