@@ -1,16 +1,44 @@
+"""
+Модуль выполнения запросов к базе данных.
+
+Содержит функции для CRUD-операций с пользователями и записями о воде.
+Все функции асинхронны и используют AsyncSessionLocal из engine.py.
+"""
 from datetime import datetime, timezone, timedelta
 from sqlalchemy import select, insert, update, func
 from .models import users, intakes
 from .engine import AsyncSessionLocal
 
 async def get_user(user_id: int):
+    """
+    Получает данные пользователя по его Telegram ID.
+
+    Args:
+        user_id (int): Уникальный идентификатор пользователя в Telegram.
+
+    Returns:
+        sqlalchemy.engine.Row | None: Строка из таблицы users или None, если не найден.
+    """
     async with AsyncSessionLocal() as session:
         query = select(users).where(users.c.user_id == user_id)
         result = await session.execute(query)
         row = result.mappings().fetchone()
         return dict(row) if row else None
 
-async def create_or_update_user(user_id: int, gender: int, weight_kg: int, activity_level: int, daily_goal_ml: int):
+async def create_or_update_user(
+        user_id: int,
+        gender: int,
+        weight_kg: int,
+        activity_level: int,
+        daily_goal_ml: int
+):
+    """
+    Создаёт нового пользователя или обновляет существующего.
+
+    Args:
+        user_id (int): Telegram ID пользователя.
+        **kwargs: Поля для сохранения (gender, weight_kg, daily_goal_ml и т.д.).
+    """
     async with AsyncSessionLocal() as session:
         existing = await get_user(user_id)
         if existing:
@@ -48,7 +76,13 @@ async def set_user_language(user_id: int, lang: str):
         await session.commit()
 
 async def add_intake(user_id: int, amount_ml: int):
-    """Добавляет запись о выпитой воде"""
+    """
+    Добавляет запись о потреблении воды.
+
+    Args:
+        user_id (int): Telegram ID пользователя.
+        amount_ml (int): Количество выпитой воды в миллилитрах.
+    """
     async with AsyncSessionLocal() as session:
         stmt = insert(intakes).values(
             user_id=user_id,
@@ -59,7 +93,15 @@ async def add_intake(user_id: int, amount_ml: int):
         await session.commit()
 
 async def get_today_intakes(user_id: int):
-    """Возвращает все записи за сегодня"""
+    """
+    Возвращает все записи о воде за сегодняшний день (UTC).
+
+    Args:
+        user_id (int): Telegram ID пользователя.
+
+    Returns:
+        list[sqlalchemy.engine.Row]: Список записей.
+    """
     today = datetime.now(timezone.utc).date()
     async with AsyncSessionLocal() as session:
         query = (
@@ -73,7 +115,15 @@ async def get_today_intakes(user_id: int):
 
 
 async def get_weekly_totals(user_id: int):
-    """Возвращает словарь: {дата_iso: сумма_мл} за последние 7 дней"""
+    """
+    Возвращает суммарное потребление воды за последние 7 дней.
+
+    Args:
+        user_id (int): Telegram ID пользователя.
+
+    Returns:
+        dict[str, int]: Словарь вида {"YYYY-MM-DD": total_ml}.
+    """
     now = datetime.now(timezone.utc)
     week_ago = now - timedelta(days=7)
     async with AsyncSessionLocal() as session:
@@ -91,6 +141,7 @@ async def get_weekly_totals(user_id: int):
         return {str(row.date): row.total for row in rows}
 
 async def toggle_notifications(user_id: int, enabled: bool):
+    """Переключает статус напоминаний для пользователя."""
     async with AsyncSessionLocal() as session:
         stmt = (
             update(users)

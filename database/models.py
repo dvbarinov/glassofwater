@@ -1,3 +1,9 @@
+"""
+Модуль описания структуры базы данных.
+
+Содержит определения таблиц в виде объектов SQLAlchemy Core.
+Используется для генерации схемы БД и выполнения запросов.
+"""
 from sqlalchemy import MetaData, Table, Column, Integer, BigInteger, DateTime, String, Boolean
 
 metadata = MetaData()

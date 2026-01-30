@@ -1,8 +1,13 @@
-# database/engine.py
+"""
+Модуль управления подключением к базе данных.
+
+Инициализирует асинхронный движок SQLAlchemy для работы с SQLite,
+создаёт таблицы при первом запуске и предоставляет фабрику сессий.
+"""
+import os
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.pool import StaticPool
 from .models import metadata
-import os
 
 # Путь к базе данных (по умолчанию — data/aquatrack.db)
 DB_PATH = os.getenv("DB_PATH", "data/aquatrack.db")
@@ -24,6 +29,14 @@ AsyncSessionLocal = async_sessionmaker(
 )
 
 async def init_db():
-    """Создаёт таблицы при первом запуске."""
+    """
+    Инициализирует базу данных.
+
+    Создаёт все таблицы, определённые в metadata, если они ещё не существуют.
+    Вызывается один раз при запуске приложения.
+
+    Примечание:
+        Безопасна для повторного вызова — не пересоздаёт существующие таблицы.
+    """
     async with engine.begin() as conn:
         await conn.run_sync(metadata.create_all)
