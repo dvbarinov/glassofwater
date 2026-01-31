@@ -5,6 +5,7 @@ from aiogram.fsm.state import State, StatesGroup
 
 from database.queries import create_or_update_user
 from keyboards.inline import get_gender_keyboard, get_activity_keyboard, get_main_menu_keyboard
+from keyboards.reply import get_main_reply_keyboard
 from utils.calculator import calculate_daily_water_goal
 from utils.i18n import get_text
 
@@ -27,7 +28,10 @@ async def cmd_start(message: Message, lang: str, user: dict | None, state: FSMCo
     if user and user["daily_goal_ml"]:
         # Пользователь уже настроил профиль
         await message.answer(get_text("restart.greeting", lang))
-        await message.answer(get_text("restart.greeting_add", lang))
+        await message.answer(
+            get_text("restart.greeting_add", lang),
+            reply_markup=get_main_reply_keyboard()
+        )
 
         await state.clear()
     else:
