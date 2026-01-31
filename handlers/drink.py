@@ -59,7 +59,7 @@ async def process_water_amount(message: Message, user_lang: str, user: dict | No
     await add_intake(message.from_user.id, amount)
 
     if user and user["notifications_enabled"]:
-        schedule_next_reminder(bot, message.from_user.id, hours=2)
+        schedule_next_reminder(bot, message.from_user.id, minutes=100)
 
     # Получаем цель для расчёта прогресса
     user = await get_user(message.from_user.id)

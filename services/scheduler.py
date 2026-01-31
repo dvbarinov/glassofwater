@@ -1,3 +1,9 @@
+"""
+Модуль фонового планировщика задач.
+
+Используется для периодических задач, не зависящих от действий пользователя
+(например, очистка старых записей, аналитика).
+"""
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime, time, timezone, timedelta
 import pytz
