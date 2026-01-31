@@ -1,8 +1,9 @@
-from aiogram import Router, F
+from aiogram import Router, F, Bot
 from aiogram.types import Message, CallbackQuery
 
 from database.queries import get_user, add_intake
 from keyboards.inline import get_drink_quick_buttons
+from services.reminder_manager import schedule_next_reminder
 from utils.i18n import get_text, get_user_language
 
 router = Router()
@@ -43,7 +44,7 @@ async def drink_callback(callback: CallbackQuery, user_lang: str):
         await callback.answer("❌ Некорректные данные", show_alert=True)
 
 
-async def process_water_amount(message: Message, user_lang: str, amount_str: str):
+async def process_water_amount(message: Message, user_lang: str, user: dict | None, amount_str: str, bot: Bot):
     """Общая логика обработки объёма воды"""
     try:
         amount = int(amount_str)
@@ -56,6 +57,9 @@ async def process_water_amount(message: Message, user_lang: str, amount_str: str
         return
 
     await add_intake(message.from_user.id, amount)
+
+    if user and user["notifications_enabled"]:
+        schedule_next_reminder(bot, message.from_user.id, hours=2)
 
     # Получаем цель для расчёта прогресса
     user = await get_user(message.from_user.id)

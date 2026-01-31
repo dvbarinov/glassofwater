@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
 from database.queries import toggle_notifications
+from services.reminder_manager import cancel_reminder
 from utils.i18n import get_text
 
 router = Router()
@@ -40,6 +41,9 @@ async def toggle_reminders_callback(callback: CallbackQuery, user_lang: str, use
     # Переключаем статус
     new_state = not bool(user["notifications_enabled"])
     await toggle_notifications(user_id, new_state)
+
+    if not new_state:
+        cancel_reminder(user_id)
 
     status = get_text("reminders.enabled" if new_state else "reminders.disabled", user_lang)
 
