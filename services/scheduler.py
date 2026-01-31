@@ -4,12 +4,13 @@
 Используется для периодических задач, не зависящих от действий пользователя
 (например, очистка старых записей, аналитика).
 """
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from datetime import datetime, time, timezone, timedelta
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import pytz
 
 from database.queries import get_all_active_users
 from utils.i18n import get_text
+from keyboards.inline import get_drink_quick_buttons
 
 # Глобальный бот (будет установлен в main.py)
 _bot = None
@@ -39,7 +40,6 @@ async def send_water_reminder():
                 msg = get_text("reminders.notification", lang)
 
                 # Добавляем быстрые кнопки
-                from keyboards.inline import get_drink_quick_buttons
                 await _bot.send_message(
                     chat_id=user["user_id"],
                     text=msg,
@@ -53,6 +53,11 @@ async def setup_scheduler(bot):
     set_bot(bot)
     scheduler = AsyncIOScheduler()
     # Напоминание каждые 2 часа
-    scheduler.add_job(send_water_reminder, 'interval', minutes=100, next_run_time=datetime.now() + timedelta(seconds=10))
+    scheduler.add_job(
+        send_water_reminder,
+        'interval',
+        minutes=100,
+        next_run_time=datetime.now() + timedelta(seconds=10)
+    )
     scheduler.start()
     print("✅ Scheduler started")

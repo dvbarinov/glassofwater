@@ -8,11 +8,14 @@
 
 import asyncio
 from datetime import datetime, time, timedelta, timezone
+from typing import Dict
+import logging
 import pytz
-from typing import Dict, Optional
 
 from aiogram import Bot
-from database.queries import get_user
+from aiogram.exceptions import TelegramAPIError
+
+from database.queries import get_user, toggle_notifications
 from keyboards.inline import get_drink_quick_buttons
 from utils.i18n import get_text, get_user_language
 
@@ -57,7 +60,7 @@ async def _send_reminder(bot: Bot, user_id: int) -> None:
         now_local = datetime.now(timezone.utc).astimezone(user_tz).time()
 
         # Проверка рабочих часов
-        if not (time(9, 0) <= now_local <= time(21, 0)):
+        if not time(9, 0) <= now_local <= time(21, 0):
             delay = _get_delay_to_next_morning(tz_offset)
             _schedule_reminder(bot, user_id, delay)
             return
@@ -71,8 +74,19 @@ async def _send_reminder(bot: Bot, user_id: int) -> None:
             reply_markup=get_drink_quick_buttons(lang)
         )
 
+    except TelegramAPIError as e:
+        # Ожидаемые ошибки Telegram: пользователь заблокировал, чат не найден и т.д.
+        print(f"⚠️ Не удалось отправить напоминание пользователю {user_id}: {e}")
+        # Опционально: отключить напоминания для этого пользователя
+        await toggle_notifications(user_id, False)
+    except (OSError, asyncio.TimeoutError) as e:
+        # Сетевые проблемы — можно повторить или проигнорировать
+        print(f"🌐 Сетевая ошибка при отправке напоминания {user_id}: {e}")
     except Exception as e:
-        print(f"Ошибка отправки напоминания {user_id}: {e}")
+        # Только для непредвиденных ошибок (баги в коде)
+        # В продакшене лучше логировать
+        logging.exception("❌ Критическая ошибка в _send_reminder для %s", user_id)
+        raise  # Перебрасываем, чтобы не скрывать баги
 
 
 def _get_delay_to_next_morning(tz_offset: int) -> float:
