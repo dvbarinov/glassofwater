@@ -5,11 +5,13 @@
 Все функции асинхронны и используют AsyncSessionLocal из engine.py.
 """
 from datetime import datetime, timezone, timedelta
+from typing import Any
+
 from sqlalchemy import select, insert, update, func
 from .models import users, intakes
 from .engine import AsyncSessionLocal
 
-async def get_user(user_id: int):
+async def get_user(user_id: int) -> dict[str, Any]:
     """
     Получает данные пользователя по его Telegram ID.
 
