@@ -107,11 +107,11 @@ async def process_weight(message: Message, user_lang: str, state: FSMContext):
     """
     weight = int(message.text)
     if not 30 <= weight <= 200:
-        await message.answer("Пожалуйста, введите реалистичный вес (от 30 до 200 кг):")
+        await message.answer(get_text("start.invalid_weight", user_lang))
         return
     await state.update_data(weight=weight)
     await message.answer(
-        "Теперь выберите уровень физической активности:",
+        get_text("start.ask_activity", user_lang),
         reply_markup=get_activity_keyboard(user_lang)
     )
     await state.set_state(ProfileSetup.activity)
@@ -150,13 +150,10 @@ async def process_activity(callback: CallbackQuery, user_lang: str, state: FSMCo
         daily_goal_ml=daily_goal
     )
 
+
     await callback.message.edit_text(
-        f"✅ Настройка завершена!\n"
-        f"Ваша рекомендуемая норма воды: <b>{daily_goal} мл</b> в день.\n\n"
-        "Теперь Вы можете:\n"
-        "• Отправлять объём воды (например: <code>300</code>)\n"
-        "• Или использовать команду /drink 250\n"
-        "• Посмотреть статистику: /stats",
+        get_text("start.finished", user_lang, daily_goal=daily_goal),
+        get_text("restart.greeting_add", user_lang),
         reply_markup=get_main_menu_keyboard(user_lang)
     )
     await state.clear()
