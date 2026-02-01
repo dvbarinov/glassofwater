@@ -24,10 +24,6 @@ def get_main_reply_keyboard() -> ReplyKeyboardMarkup:
             [
                 KeyboardButton(text="/drink"),
                 KeyboardButton(text="/analyze")
-            ],
-            [
-                KeyboardButton(text="/goal"),
-                KeyboardButton(text="/reminders")
             ]
         ],
         resize_keyboard=True,

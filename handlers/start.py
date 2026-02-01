@@ -150,10 +150,8 @@ async def process_activity(callback: CallbackQuery, user_lang: str, state: FSMCo
         daily_goal_ml=daily_goal
     )
 
-
     await callback.message.edit_text(
-        get_text("start.finished", user_lang, daily_goal=daily_goal),
-        get_text("restart.greeting_add", user_lang),
+        get_text("start.finished", user_lang, daily_goal=daily_goal) + get_text("restart.greeting_add", user_lang),
         reply_markup=get_main_menu_keyboard(user_lang)
     )
     await state.clear()
