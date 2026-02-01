@@ -8,7 +8,7 @@
 
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
-from utils.i18n import get_text
+from utils.i18n import get_text, SUPPORTED_LANGUAGES
 
 
 def get_gender_keyboard(user_lang: str) -> InlineKeyboardMarkup:
@@ -102,4 +102,33 @@ def get_drink_quick_buttons() -> InlineKeyboardMarkup:
             for amt in amounts[2:]
         ]
     ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+def get_lang_buttons(lang: str = "en") -> InlineKeyboardMarkup:
+    """
+    Создаёт inline-клавиатуру для выбора языка интерфейса.
+
+    Генерирует кнопки для всех поддерживаемых языков с национальными флагами.
+    Текущий язык (переданный в параметре `lang`) помечается эмодзи ✅.
+
+    Args:
+        lang (str): Код текущего языка (например, 'ru', 'en').
+                    Используется для отметки активного выбора.
+
+    Returns:
+        InlineKeyboardMarkup: Клавиатура с кнопками вида:
+            - 🇬🇧 English ✅
+            - 🇷🇺 Русский
+
+    Пример использования:
+        >>> kb = get_lang_buttons("ru")
+        # Кнопка "🇷🇺 Русский" будет содержать "✅"
+    """
+    buttons = []
+    for lang_code in SUPPORTED_LANGUAGES:
+        flag = {"en": "🇬🇧", "ru": "🇷🇺", "de": "🇩🇪", "zh": "🇨🇳", "be": "🇧🇾"}.get(lang_code, "🌐")
+        text = f"{flag} {SUPPORTED_LANGUAGES[lang_code]}"
+        if lang_code == lang:
+            text += " ✅"
+        buttons.append([InlineKeyboardButton(text=text, callback_data=f"set_lang_{lang_code}")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)

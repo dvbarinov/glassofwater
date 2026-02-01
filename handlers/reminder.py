@@ -1,3 +1,13 @@
+"""
+Хэндлеры для управления умными напоминаниями о потреблении воды.
+
+Модуль реализует интерактивное переключение напоминаний,
+которые срабатывают через 2 часа после последнего приёма воды
+(с учётом дневного времени: 9:00–21:00).
+
+При отключении напоминаний автоматически отменяется
+текущая запланированная задача. Все текстовые элементы локализованы.
+"""
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -10,6 +20,17 @@ router = Router()
 
 @router.message(F.text == "/reminder")
 async def cmd_reminders(message: Message, user_lang: str, user: dict | None):
+    """
+    Отображает текущий статус напоминаний и кнопку переключения.
+
+    Если профиль не настроен — предлагает выполнить /start.
+    Иначе показывает включены ли напоминания и даёт возможность изменить.
+
+    Args:
+        message (Message): Входящее сообщение (команда или кнопка).
+        user_lang (str): Код языка, определённый middleware.
+        user (dict | None): Данные пользователя из базы данных.
+    """
     if not user:
         no_profile = get_text("reminders.no_profile", user_lang)
         await message.answer(no_profile)
@@ -32,6 +53,19 @@ async def cmd_reminders(message: Message, user_lang: str, user: dict | None):
 
 @router.callback_query(F.data == "toggle_reminders")
 async def toggle_reminders_callback(callback: CallbackQuery, user_lang: str, user: dict | None):
+    """
+    Обрабатывает переключение напоминаний через inline-кнопку.
+
+    Выполняет:
+      - Обновление флага `notifications_enabled` в БД
+      - Отмену текущей задачи напоминания (если отключено)
+      - Отправку обновлённого статуса с новой клавиатурой
+
+    Args:
+        callback (CallbackQuery): Событие нажатия кнопки переключения.
+        user_lang (str): Код языка для локализации ответа.
+        user (dict | None): Данные пользователя.
+    """
     user_id = callback.from_user.id
 
     if not user:

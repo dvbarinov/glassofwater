@@ -1,3 +1,9 @@
+"""
+Хэндлеры для установки индивидуальной цели потребления воды.
+
+Позволяет задать суточную норму вручную через команду /goal <мл>.
+"""
+
 from aiogram import Router, F
 from aiogram.types import Message
 from database.queries import set_user_goal
@@ -15,13 +21,22 @@ async def cmd_goal_help(message: Message, lang: str):
 
 @router.message(F.text.regexp(r"^/goal\s+(\d+)$"))
 async def cmd_goal_set(message: Message, lang: str):
-    """Обработка команды: /goal 2500"""
+    """
+    Устанавливает новую суточную цель потребления воды.
+
+    Валидирует диапазон (500–5000 мл) и сохраняет в профиль.
+
+    Args:
+        message (Message): Сообщение вида "/goal 2500".
+        lang (str): Код языка.
+        user (dict | None): Данные пользователя.
+    """
     try:
         goal_ml = int(message.text.split(maxsplit=1)[1])
     except (ValueError, IndexError):
         return
 
-    if not (500 <= goal_ml <= 5000):
+    if not 500 <= goal_ml <= 5000:
         error_msg = get_text("goal.invalid", lang)
         await message.answer(error_msg)
         return
