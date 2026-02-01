@@ -1,40 +1,42 @@
 # tests/test_i18n.py
-import unittest
 import os
 import json
+import pytest
 from utils.i18n import get_text, get_user_language
 
-class TestI18n(unittest.TestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        # Создаём временные файлы локалей
-        os.makedirs("locales", exist_ok=True)
-        with open("locales/en.json", "w") as f:
-            json.dump({"test.hello": "Hello, {name}!"}, f)
-        with open("locales/ru.json", "w") as f:
-            json.dump({"test.hello": "Привет, {name}!"}, f)
+@pytest.fixture(scope="module", autouse=True)
+def setup_locales():
+    """Создаёт временные файлы локалей перед тестами и удаляет после"""
+    os.makedirs("locales", exist_ok=True)
+    locales = {
+        "en": {"test.hello": "Hello, {name}!"},
+        "ru": {"test.hello": "Привет, {name}!"}
+    }
+    for lang, data in locales.items():
+        with open(f"locales/{lang}.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False)
 
-    @classmethod
-    def tearDownClass(cls):
-        # Удаляем временные файлы
-        for lang in ["en", "ru"]:
-            try:
-                os.remove(f"locales/{lang}.json")
-            except:
-                pass
+    yield  # запуск тестов
 
-    def test_get_text_en(self):
-        result = get_text("test.hello", "en", name="Alice")
-        self.assertEqual(result, "Hello, Alice!")
+    # Очистка
+    for lang in locales:
+        try:
+            os.remove(f"locales/{lang}.json")
+        except FileNotFoundError:
+            pass
 
-    def test_get_text_ru(self):
-        result = get_text("test.hello", "ru", name="Алиса")
-        self.assertEqual(result, "Привет, Алиса!")
 
-    def test_missing_key(self):
-        result = get_text("non.existent", "en")
-        self.assertEqual(result, "MISSING: non.existent")
+def test_get_text_en():
+    result = get_text("test.hello", "en", name="Alice")
+    assert result == "Hello, Alice!"
 
-if __name__ == '__main__':
-    unittest.main()
+
+def test_get_text_ru():
+    result = get_text("test.hello", "ru", name="Алиса")
+    assert result == "Привет, Алиса!"
+
+
+def test_missing_key():
+    result = get_text("non.existent", "en")
+    assert result == "MISSING: non.existent"
