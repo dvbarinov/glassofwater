@@ -41,7 +41,7 @@ async def cmd_drink_help(message: Message, user_lang: str):
         user_lang (str): Код языка, определённый middleware.
     """
     help_text = get_text("drink.help", user_lang)
-    await message.answer(help_text, reply_markup=get_drink_quick_buttons())
+    await message.answer(help_text, reply_markup=get_drink_quick_buttons(user_lang))
 
 
 @router.message(F.text.regexp(r"^/drink\s+(\d+)$"))
@@ -157,7 +157,7 @@ async def process_water_amount(
     else:
         success_msg = get_text("drink.added", user_lang, amount=amount)
 
-    await message.answer(success_msg, reply_markup=get_drink_quick_buttons())
+    await message.answer(success_msg, reply_markup=get_drink_quick_buttons(user_lang))
 
 
 # --- Вспомогательная функция (временно здесь, позже можно вынести в queries.py) ---

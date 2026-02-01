@@ -38,7 +38,7 @@ def generate_weekly_chart(
     """
     # Настройка локали для подписей
     labels = get_loc_list("weekday", lang)
-    units = get_text("ml", lang)
+    units = get_text("units.ml", lang)
     goal = get_text("analyze.goal", lang)
 
     # Подготовка данных

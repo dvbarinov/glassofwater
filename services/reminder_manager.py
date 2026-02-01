@@ -66,7 +66,7 @@ async def _send_reminder(bot: Bot, user_id: int) -> None:
             return
 
         # Отправка напоминания
-        lang = get_user_language(user.get("language"), "en")
+        lang = get_user_language(user, user_id)
         msg = get_text("reminders.notification", lang)
         await bot.send_message(
             chat_id=user_id,

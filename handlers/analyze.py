@@ -82,7 +82,7 @@ def _format_weekly_stats(weekly_data: dict, goal: int, user_lang: str) -> str:
     """Форматирует статистику за последние 7 дней"""
     days = []
     now = datetime.now(timezone.utc).date()
-    units = get_text("ml", user_lang)
+    units = get_text("units.ml", user_lang)
 
     # Список дней: сегодня, вчера, позавчера...
     for i in range(7):

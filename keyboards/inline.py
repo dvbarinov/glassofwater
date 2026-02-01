@@ -75,28 +75,29 @@ def get_main_menu_keyboard(user_lang: str = "ru") -> InlineKeyboardMarkup:
     ])
 
 
-def get_drink_quick_buttons() -> InlineKeyboardMarkup:
+def get_drink_quick_buttons(user_lang: str) -> InlineKeyboardMarkup:
     """
     Создаёт клавиатуру быстрого добавления воды (100, 200, 300, 500 мл).
 
     Args:
-        lang (str): Код языка (не влияет на числа, но сохраняет единообразие).
+        user_lang (str): Код языка (не влияет на числа, но сохраняет единообразие).
 
     Returns:
         InlineKeyboardMarkup: Сетка из 2×2 кнопок с объёмами в миллилитрах.
     """
     amounts = [100, 200, 300, 500]
+    units = get_text("units.ml", user_lang)
     buttons = [
         [
             InlineKeyboardButton(
-                text=f"+{amt} мл",
+                text=f"+{amt} {units}",
                 callback_data=f"drink_{amt}"
             )
             for amt in amounts[:2]
         ],
         [
             InlineKeyboardButton(
-                text=f"+{amt} мл",
+                text=f"+{amt} {units}",
                 callback_data=f"drink_{amt}"
             )
             for amt in amounts[2:]
