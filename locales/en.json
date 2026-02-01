@@ -21,7 +21,6 @@
   "lang.choose": "Select your interface language:",
   "lang.unsupported": "Language not supported.",
   "menu.change_language": "🌐 Change language",
-  "ml": "ml",
   "reminders.disabled": "❌ Disabled",
   "reminders.enabled": "✅ Enabled",
   "reminders.no_profile": "⚠️ Please set up your profile first with /start.",

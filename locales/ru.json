@@ -21,7 +21,6 @@
   "lang.choose": "Выберите язык интерфейса:",
   "lang.unsupported": "Язык не поддерживается.",
   "menu.change_language": "🌐 Cменить язык",
-  "ml": "мл",
   "reminders.disabled": "❌ Отключены",
   "reminders.enabled": "✅ Включены",
   "reminders.no_profile": "⚠️ Сначала настройте профиль через /start.",
