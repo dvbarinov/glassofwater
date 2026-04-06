@@ -14,6 +14,7 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
+from aiogram.client.session.aiohttp import AiohttpSession
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
@@ -65,7 +66,14 @@ async def main():
     logger.info("✅ База данных инициализирована")
 
     # Инициализация бота и диспетчера
-    bot = Bot(token=settings.bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    session = AiohttpSession(timeout=120)
+    bot = Bot(
+        token=settings.bot_token,
+        session=session,
+        default=DefaultBotProperties(
+            parse_mode=ParseMode.HTML
+        )
+    )
     dp = Dispatcher(storage=MemoryStorage())
 
     # Применяем мидлварь ко всем сообщениям и колбэкам

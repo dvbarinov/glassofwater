@@ -8,7 +8,8 @@
 
 import asyncio
 from datetime import datetime, time, timedelta, timezone
-from typing import Dict
+from random import randint
+from typing import Dict, Tuple
 import logging
 import pytz
 
@@ -17,8 +18,8 @@ from aiogram.exceptions import TelegramAPIError
 
 from database.queries import get_user, toggle_notifications
 from keyboards.inline import get_drink_quick_buttons
+from locales.calls import calls_db
 from utils.i18n import get_text, get_user_language
-
 
 _active_reminders: Dict[int, asyncio.Task] = {}
 """Глобальное хранилище активных задач напоминаний по user_id."""
@@ -54,20 +55,17 @@ async def _send_reminder(bot: Bot, user_id: int) -> None:
         if not user or not user.get("notifications_enabled"):
             return
 
-        # Определяем локальное время пользователя
-        tz_offset = user.get("timezone_offset", 0)  # в минутах от UTC
-        user_tz = pytz.FixedOffset(tz_offset)
-        now_local = datetime.now(timezone.utc).astimezone(user_tz).time()
+        now_local, tz_offset = await _get_user_time(user)
 
         # Проверка рабочих часов
-        if not time(9, 0) <= now_local <= time(21, 0):
+        if not time(9, 0) <= now_local.time() <= time(21, 0):
             delay = _get_delay_to_next_morning(tz_offset)
             _schedule_reminder(bot, user_id, delay)
             return
 
         # Отправка напоминания
         lang = get_user_language(user, user_id)
-        msg = get_text("reminders.notification", lang)
+        msg = "💧 " + calls_db[randint(0,len(calls_db)-1)] + get_text("reminders.notification", lang)
         await bot.send_message(
             chat_id=user_id,
             text=msg,
@@ -87,6 +85,16 @@ async def _send_reminder(bot: Bot, user_id: int) -> None:
         # В продакшене лучше логировать
         logging.exception("❌ Критическая ошибка в _send_reminder для %s", user_id)
         raise  # Перебрасываем, чтобы не скрывать баги
+
+
+async def _get_user_time(user:Dict) -> Tuple[datetime, int]:
+    """
+    Определяет локальное время пользователя
+    """
+    tz_offset = user.get("timezone_offset", 0)  # в минутах от UTC
+    user_tz = pytz.FixedOffset(tz_offset)
+    now_local = datetime.now(timezone.utc).astimezone(user_tz)
+    return now_local, tz_offset
 
 
 def _get_delay_to_next_morning(tz_offset: int) -> float:
@@ -118,6 +126,7 @@ def _schedule_reminder(bot: Bot, user_id: int, delay: float) -> None:
         user_id (int): Telegram ID пользователя.
         delay (float): Задержка в секундах.
     """
+
     async def wrapper():
         await asyncio.sleep(delay)
         await _send_reminder(bot, user_id)
@@ -126,7 +135,7 @@ def _schedule_reminder(bot: Bot, user_id: int, delay: float) -> None:
     _active_reminders[user_id] = task
 
 
-def schedule_next_reminder(bot: Bot, user_id: int, minutes: int = 120) -> None:
+async def schedule_next_reminder(bot: Bot, user_id: int, minutes: int = 120) -> None:
     """
     Планирует новое напоминание через N часов после последнего действия.
 
@@ -138,5 +147,17 @@ def schedule_next_reminder(bot: Bot, user_id: int, minutes: int = 120) -> None:
         hours (int): Интервал в часах (по умолчанию 2).
     """
     cancel_reminder(user_id)
-    delay_seconds = minutes * 60
-    _schedule_reminder(bot, user_id, delay_seconds)
+
+    # Проверка рабочих часов
+    user = await get_user(user_id)
+    if not user:
+        return
+
+    now_local, tz_offset = await _get_user_time(user)
+    next_time = now_local + timedelta(minutes=minutes)
+    if not time(9, 0) <= next_time <= time(21, 0):
+        delay = _get_delay_to_next_morning(tz_offset)
+        _schedule_reminder(bot, user_id, delay)
+        return
+
+    _schedule_reminder(bot, user_id, minutes * 60)

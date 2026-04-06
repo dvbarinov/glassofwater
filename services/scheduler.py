@@ -5,11 +5,13 @@
 (например, очистка старых записей, аналитика).
 """
 from datetime import datetime, time, timezone, timedelta
+from random import randint
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import pytz
 
 from database.queries import get_all_active_users
 from utils.i18n import get_text
+from locales.calls import calls_db
 from keyboards.inline import get_drink_quick_buttons
 
 # Глобальный бот (будет установлен в main.py)
@@ -37,7 +39,7 @@ async def send_water_reminder():
             # Отправляем напоминание только в рабочие часы (9:00–21:00)
             if time(9, 0) <= local_time <= time(21, 0):
                 lang = user["language"] or "ru"
-                msg = get_text("reminders.notification", lang)
+                msg = "💧 " + calls_db[randint(0,len(calls_db)-1)] + get_text("reminders.notification", lang)
 
                 # Добавляем быстрые кнопки
                 await _bot.send_message(
@@ -56,7 +58,7 @@ async def setup_scheduler(bot):
     scheduler.add_job(
         send_water_reminder,
         'interval',
-        minutes=100,
+        minutes=180,
         next_run_time=datetime.now() + timedelta(seconds=10)
     )
     scheduler.start()

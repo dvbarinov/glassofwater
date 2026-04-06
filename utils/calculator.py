@@ -26,7 +26,7 @@ def calculate_daily_water_goal(gender: int, weight_kg: int, activity_level: int)
         >>> calculate_daily_water_goal(0, 70, 1)
         2400
     """
-    base = weight_kg * 35  # 30 мл на кг
+    base = weight_kg * 30  # 30 мл на кг
     activity_bonus = {0: 0, 1: 300, 2: 600}[activity_level]
 
     # Женщинам немного меньше (по некоторым рекомендациям)
