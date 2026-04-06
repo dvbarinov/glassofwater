@@ -24,7 +24,7 @@
   "reminders.disabled": "❌ Отключены",
   "reminders.enabled": "✅ Включены",
   "reminders.no_profile": "⚠️ Сначала настройте профиль через /start.",
-  "reminders.notification": "💧💧💧💧💧\nПора выпить воды!",
+  "reminders.notification": "\nПора выпить воды!",
   "reminders.status": "💧 Напоминания о воде:\n{status}\nВы будете получать уведомления каждые 2 часа с 9:00 до 21:00.",
   "reminders.turn_off": "🔕 Отключить напоминания",
   "reminders.turn_on": "🔔 Включить напоминания",
